@@ -1,0 +1,55 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Laravel.dockerfile
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./laravel/:/var/www
+      - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom-php.ini
+    networks:
+      - laravel
+
+  # nginx
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "32772:80"
+    volumes:
+      - ./laravel/:/var/www
+      - ./docker/nginx/:/etc/nginx/conf.d/
+    networks:
+      - laravel
+
+  # db mysql
+  mysql:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - ./.docker/mysql/dbdata:/var/lib/mysql
+    ports:
+      - "32773:3306"
+    networks:
+      - laravel
+
+  redis:
+    image: redis:alpine
+    container_name: laravel_redis
+    restart: unless-stopped
+    ports:
+      - "32774:6379"
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge

@@ -1,0 +1,15 @@
+{
+  "name": "avalahub",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "env:laravel": "cp ./laravel/.env.example ./laravel/.env",
+    "env:app": "ln -s ./laravel/.env .env",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

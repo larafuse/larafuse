@@ -1,0 +1,5 @@
+{
+    "name": "renan-joppert/lara-fuse",
+    "description": "Boilerplate com Docker, Laravel 11, Filament 3, Vue 3, Iconify Icons e Tradução Automática",
+    "require": {}
+}

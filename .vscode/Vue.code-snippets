@@ -1,0 +1,31 @@
+{
+  "hubVueInit": {
+    "prefix": "hubVueInit",
+    "body": [
+      "<script setup>",
+      "",
+      "</script>",
+      "",
+      "<template>",
+      "$1",
+      "</template>"
+    ],
+    "description": "Inicia um arquivo Vue com script setup e template"
+  },
+  "hubVueProps": {
+    "prefix": "hubVueProps",
+    "body": ["const props = defineProps({", "    $1", "})"],
+    "description": "Define props em um componente Vue"
+  },
+  "hubVueProp": {
+    "prefix": "hubVueProp",
+    "body": [
+      "name: {",
+      "    type: ${1:String},",
+      "    required: ${2:true},",
+      "    default: ${3:''}",
+      "},"
+    ],
+    "description": "Define uma propriedade em um componente Vue"
+  }
+}

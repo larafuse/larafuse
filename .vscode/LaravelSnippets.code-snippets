@@ -1,0 +1,85 @@
+{
+	// Place your pluspag-v2 workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"Laravel Relation Has Many": {
+		"scope": "php",
+		"prefix": "lvlHasMany",
+		"body": [
+			"public function $1()",
+			"{",
+			"    return \\$this->hasMany($2::class, '$3');",
+			"}",
+			"",
+		]
+	},
+	"Laravel Relation Has Many In Company": {
+		"scope": "php",
+		"prefix": "lvlHasManyComp",
+		"body": [
+			"public function $1()",
+			"{",
+			"    return \\$this->hasMany($2::class, 'company_id');",
+			"}",
+			"",
+		]
+	},
+	"Laravel Relation Belongs To": {
+		"scope": "php",
+		"prefix": "lvlBelongsTo",
+		"body": [
+			"public function $1()",
+			"{",
+			"    return \\$this->belongsTo($2::class, '$3');",
+			"}",
+			"",
+		]
+	},
+	"Laravel Seeder Scaffold": {
+		"scope": "php",
+		"prefix": "lvlSeeder",
+		"body": [
+			"\\$payload = [",
+			"    $1",
+			"        ];",
+			"",
+			"",
+			"        foreach (\\$payload as \\$key => \\$value) {",
+			"            $2::create([",
+			"                'name' => \\$value",
+			"            ]);",
+			"        }"
+		]
+	},
+	"Laravel Enum Casting": {
+		"scope": "php",
+		"prefix": "lvlEnumCast",
+		"body": [
+			"protected \\$casts = [",
+			"    '$1' => $2::class",
+			"];",
+		]
+	},
+	"Laravel Enum Template": {
+		"scope": "php",
+		"prefix": "lvlEnumTemplate",
+		"body": [
+			"    public static function default(): self",
+			"    {",
+			"        //return self::WAITING;",
+			"    }",
+			" ",
+			"    public static function options(): array",
+			"    {",
+			"        return array_column(array_map(fn(\\$case) => [",
+			"            'value' => \\$case->value,",
+			"            'label' => \\$case->label()",
+			"        ], self::cases()), 'label', 'value');",
+			"    }",
+		]
+	}
+}

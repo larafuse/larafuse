@@ -1,0 +1,6 @@
+/.docker
+baileys/node_modules
+baileys/sessions
+.env
+baileys/.vscode
+/vendor

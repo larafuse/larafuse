@@ -1,0 +1,102 @@
+{
+	// Place your pluspag-v2 workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"Filament Attributes Resource": {
+		"scope": "php",
+		"prefix": "flm_resource_attrs",
+		"body": [
+			"public static ?string \\$navigationLabel = '$1';",
+			"    public static ?string \\$pluralLabel = '$1';",
+			"    protected static ?string \\$modelLabel = '$2';",
+			"    //protected static ?string \\$navigationGroup = '';"
+		],
+		"description": "Atributos de Resources"
+	},
+	"Filament Select Attributes": {
+		"scope": "php",
+		"prefix": "flm_select_field",
+		"body": [
+			"->searchable()",
+			"                    ->preload()",
+			"                    ->native(false)",
+			"                    ->relationship('$1', '$2')",
+		],
+		"description": "Campo de select"
+	},
+	"Filament Select Attributes + Create Option Modal": {
+		"scope": "php",
+		"prefix": "flm_select_field_create_option",
+		"body": [
+			"->label('$1')",
+			"                    ->searchable()",
+			"                    ->preload()",
+			"                    ->native(false)",
+			"                    ->relationship('$2', '$3')",
+			"                    ->createOptionForm([",
+			"                        Forms\\Components\\TextInput::make('name')",
+			"])",
+		],
+		"description": "Campo de select"
+	},
+	"Filament Orderable Column": {
+		"scope": "php",
+		"prefix": "flm_order_column",
+		"body": [
+			"->defaultSort('$1')",
+			"                    ->reorderable('$1')"
+		],
+		"description": "Campo de ordenação"
+	},
+	"Filament Change Data Before Save": {
+		"scope": "php",
+		"prefix": "flm_change_data_before_save",
+		"body": [
+			"->mutateFormDataUsing(function (array \\$data): array {",
+			"                   $1",
+			"                   return \\$data;",
+			"                })"
+		]
+	},
+	"Filament Unique Data": {
+		"scope": "php",
+		"prefix": "flm_unique_form",
+		"body": [
+			"->unique(ignoreRecord: true)"
+		]
+	},
+	"Filament New Option Modal": {
+		"scope": "php",
+		"prefix": "flm_modal_new_option",
+		"body": [
+			"->createOptionForm([",
+			"    Forms\\Components\\TextInput::make('name')",
+			"])"
+		]
+	},
+	"Filament Edit Option Modal": {
+		"scope": "php",
+		"prefix": "flm_modal_edit_option",
+		"body": [
+			"->editOptionForm([",
+			"    Forms\\Components\\TextInput::make('name')",
+			"])"
+		]
+	},
+    "Filament Format State in Table (Apply in Enum Col)": {
+       "scope": "php",
+        "prefix": "flm_format_state_in_table",
+        "body": [
+            "                ->formatStateUsing(function (\\$state) {",
+            "                    if (\\$state instanceof $1) {",
+            "                        return \\$state->label();",
+            "                    }",
+            "                    return $1::from(\\$state)->label();",
+            "                }),"
+        ] 
+    }
+}

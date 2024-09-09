@@ -1,0 +1,47 @@
+name: "Deploy On Production"
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        id: ssh
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script_stop: false
+          debug: false
+          script: |
+            cd ${{ secrets.PATH }}
+            git branch
+            git pull
+            # Check if there are changes in the migrations folder or composer.json
+            CHANGED_FILES=$(git diff --name-only HEAD HEAD~1)
+            echo "Changed files: $CHANGED_FILES"
+            if echo "$CHANGED_FILES" | grep -q "laravel/database/migrations"; then
+              echo "Migrations changed, running docker-compose exec app php artisan migrate"
+              docker-compose exec -T app php artisan migrate
+            else
+              echo "No changes in migrations"
+            fi
+
+            if echo "$CHANGED_FILES" | grep -q "laravel/composer.json"; then
+              echo "composer.json changed, running docker-compose exec app composer install"
+              docker-compose exec -T app composer install
+            else
+              echo "No changes in composer.json"
+            fi
+             docker-compose exec -T app php artisan icons:cache
+             docker-compose exec -T app php artisan filament:cache-components
+            #  docker-compose exec -T app php artisan optimize
+
+             docker-compose exec -T app php artisan config:clear
+             docker-compose exec -T app php artisan cache:clear
