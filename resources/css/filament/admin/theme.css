@@ -9,3 +9,8 @@
 .dark .fi-sidebar-nav {
     border-right: 1px solid #18181b;
 }
+
+
+.growmax-theme .fi-dropdown-panel {
+    @apply !max-w-[16rem];
+}

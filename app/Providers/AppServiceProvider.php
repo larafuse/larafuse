@@ -10,6 +10,8 @@ use Filament\Tables\Filters\BaseFilter;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Columns\Column;
 use Filament\Infolists\Components\Entry;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -45,5 +47,11 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict(!app()->isProduction());
 
         $this->translatableComponents();
+
+        // Custom sidebar footer view on left menu
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SIDEBAR_FOOTER,
+            fn(): \Illuminate\View\View => view('filament.layout.panel-sidebar-footer'),
+        );
     }
 }
