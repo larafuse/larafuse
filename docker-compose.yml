@@ -16,7 +16,7 @@ services:
     # ports:
     # - ${REVERB_PORT}:${REVERB_PORT}
     volumes:
-      - ./laravel/:/var/www
+      - ./:/var/www
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom-php.ini
     networks:
       - laravel
@@ -30,7 +30,7 @@ services:
     ports:
       - "${APP_PORT:-8080}:80"
     volumes:
-      - ./laravel/:/var/www
+      - ./:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/
     networks:
       - laravel
@@ -68,28 +68,28 @@ services:
     networks:
       - laravel
 
-  redis:
-    image: redis:alpine
-    restart: unless-stopped
-    ports:
-      - "0:6379"
-    networks:
-      - laravel
+  # redis:
+  #   image: redis:alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "0:6379"
+  #   networks:
+  #     - laravel
 
-  cron:
-    restart: unless-stopped
-    build:
-      context: ./
-      dockerfile: ./cron.dockerfile
-    # run crond as main process of container
-    entrypoint: ["bash", "-c", "cron -f"]
-    volumes:
-      - ./laravel/:/var/www
-    depends_on:
-      - app
-      - base
-    networks:
-      - laravel
+  # cron:
+  #   restart: unless-stopped
+  #   build:
+  #     context: ./
+  #     dockerfile: ./cron.dockerfile
+  #   # run crond as main process of container
+  #   entrypoint: ["bash", "-c", "cron -f"]
+  #   volumes:
+  #     - ./:/var/www
+  #   depends_on:
+  #     - app
+  #     - base
+  #   networks:
+  #     - laravel
 
   # soketi:
   #   image: "quay.io/soketi/soketi:latest-16-alpine"
@@ -108,7 +108,7 @@ services:
   #     context: .
   #     dockerfile: supervisor.dockerfile
   #   volumes:
-  #     - ./laravel/:/var/www
+  #     - ./:/var/www
   #   ports:
   #     - "9000:9000"
   #     - "9001:9001"
