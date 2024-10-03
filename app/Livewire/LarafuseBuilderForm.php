@@ -412,7 +412,92 @@ class LarafuseBuilderForm extends Component  implements HasForms
         $this->addColumnsToMigration($migrationPath);
 
         // Tratar relacionamentos
+        $this->handleRelationships($modelPath);
     }
+
+    private function handleRelationships($modelPath)
+    {
+        // Itera sobre os relacionamentos
+        foreach ($this->data['relationships'] as $relationship) {
+            // Adiciona o relacionamento na model atual
+            $this->addRelationshipToModel($relationship, $modelPath);
+
+            // Adiciona o relacionamento reverso na model relacionada, se necessário
+            $relatedModelPath = app_path('Models/' . class_basename($relationship['model']) . '.php');
+            if (file_exists($relatedModelPath)) {
+                $this->addReverseRelationship($relationship, $relatedModelPath);
+            }
+        }
+    }
+
+    private function addRelationshipToModel($relationship, $modelPath)
+    {
+        $relationshipMethod = $this->generateRelationshipMethod($relationship);
+
+        // Lê o conteúdo da model
+        $modelContent = file_get_contents($modelPath);
+
+        // Verifica se o método de relacionamento já foi adicionado para evitar duplicação
+        if (!str_contains($modelContent, "function {$relationship['name']}")) {
+            // Divide o conteúdo em linhas
+            $lines = explode(PHP_EOL, $modelContent);
+
+            // Localiza o índice da última chave }
+            $lastBraceIndex = array_key_last($lines);
+
+            // Adiciona o método de relacionamento duas linhas antes da última chave }
+            array_splice($lines, $lastBraceIndex - 1, 0, $relationshipMethod . PHP_EOL);
+
+            // Reescreve a model com o método de relacionamento
+            file_put_contents($modelPath, implode(PHP_EOL, $lines));
+        }
+    }
+
+    private function addReverseRelationship($relationship, $relatedModelPath)
+    {
+        // Remove a extensão .php e obtém apenas o nome da classe
+        $reverseName = pathinfo($relatedModelPath, PATHINFO_FILENAME);
+
+        $reverseRelationship = [
+            'type' => $this->getReverseRelationshipType($relationship['type']),
+            'name' => lcfirst($reverseName), // Converte a primeira letra para minúscula
+            'model' => "App\\Models\\{$reverseName}",
+            'column' => $relationship['column']
+        ];
+
+        // Adiciona o relacionamento reverso na model relacionada
+        $this->addRelationshipToModel($reverseRelationship, $relatedModelPath);
+    }
+
+    private function generateRelationshipMethod($relationship)
+    {
+        // Gera o método de relacionamento conforme o tipo
+        switch ($relationship['type']) {
+            case 'belongsTo':
+                return "    public function {$relationship['name']}()\n    {\n        return \$this->belongsTo(\\{$relationship['model']}::class, '{$relationship['column']}');\n    }";
+            case 'hasMany':
+                return "    public function {$relationship['name']}()\n    {\n        return \$this->hasMany(\\{$relationship['model']}::class, '{$relationship['column']}');\n    }";
+            case 'hasOne':
+                return "    public function {$relationship['name']}()\n    {\n        return \$this->hasOne(\\{$relationship['model']}::class, '{$relationship['column']}');\n    }";
+            default:
+                return '';
+        }
+    }
+
+    private function getReverseRelationshipType($type)
+    {
+        // Determina o relacionamento reverso com base no tipo original
+        switch ($type) {
+            case 'belongsTo':
+                return 'hasMany'; // Ou 'hasOne' dependendo do caso
+            case 'hasMany':
+            case 'hasOne':
+                return 'belongsTo';
+            default:
+                return '';
+        }
+    }
+
 
     private function addColumnsToMigration($migrationPath)
     {
