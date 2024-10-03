@@ -8,6 +8,7 @@ use Livewire\Component;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -27,8 +28,38 @@ class LarafuseBuilderForm extends Component  implements HasForms
         'create_migration' => true,
         'run_migration' => false,
         'create_policy' => true,
-        'table_structure' => [],
-        'relationships' => [],
+        'table_structure' => [
+            [
+                "name" => "name",
+                "label" => "Nome",
+                "type" => "string",
+                "table_relationship" => null,
+                "nullable" => false,
+                "default" => null
+            ],
+            [
+                "name" => "user_id",
+                "label" => "Criador",
+                "type" => "fk",
+                "table_relationship" => "users",
+                "nullable" => true,
+                "default" => null
+            ]
+        ],
+        'relationships' => [
+            [
+                "type" => "belongsTo",
+                "name" => "user",
+                "model" => "App\Models\User",
+                "column" => "user_id"
+            ],
+            [
+                "type" => "hasMany",
+                "name" => "users",
+                "model" => "App\Models\User",
+                "column" => "user_id"
+            ]
+        ],
     ];
 
     public $modelBasePath = 'App\Models\\';
@@ -38,6 +69,13 @@ class LarafuseBuilderForm extends Component  implements HasForms
     {
         $this->data['model'] = $this->modelBasePath;
         $this->data['seed'] = $this->seedBasePath;
+
+
+        $this->data['title'] = 'Teste';
+        $this->data['model'] .= 'Teste';
+        $this->data['table'] .= 'testes';
+        $this->data['seed'] .= 'TesteSeeder';
+        $this->data['resource'] = 'TesteResource';
     }
 
     public function form(Forms\Form $form): Forms\Form
@@ -234,7 +272,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
     public function create()
     {
-        dd($this->data);
+        $this->createFiles();
     }
 
     public function render()
@@ -307,5 +345,12 @@ class LarafuseBuilderForm extends Component  implements HasForms
         }
 
         return $arr;
+    }
+
+    public function createFiles() {}
+
+    private function runMigration()
+    {
+        Artisan::call('migrate');
     }
 }
