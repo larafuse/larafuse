@@ -60,6 +60,9 @@ class LarafuseBuilderForm extends Component  implements HasForms
                 "column" => "user_id"
             ]
         ],
+
+        'hasSoftdeletes' => true,
+        'hasTimestamps' => true,
     ];
 
     public $modelBasePath = 'App\Models\\';
@@ -265,14 +268,53 @@ class LarafuseBuilderForm extends Component  implements HasForms
                             ->defaultItems(1)
                             ->addActionLabel('Add relacionamento')
                             ->reorderableWithButtons(),
+                    ]),
+
+
+                Forms\Components\Section::make('Opções')
+                    ->schema([
+                        Forms\Components\Grid::make([
+                            'default' => 1,
+                            'sm' => 2,
+                            'md' => 3,
+                            'lg' => 4,
+                            'xl' => 6,
+                            '2xl' => 8,
+                        ])
+                            ->schema([
+                                Forms\Components\Checkbox::make('hasSoftdeletes')
+                                    ->label('Soft Deletes')
+                                    ->inline(),
+                                Forms\Components\Checkbox::make('hasTimestamps')
+                                    ->label('Timestamps')
+                                    ->inline(),
+                            ]),
                     ])
+
+
+
+
+
             ])
+
             ->statePath('data');
     }
 
     public function create()
     {
-        $this->createFiles();
+
+        $this->handleModelMigration();
+        // $this->handleSeed();
+        // $this->handlePolicy();
+        // $this->handleResource();
+        // $this->runMigration();
+
+
+        // Rodar migration
+
+
+        // Tratar os labels dos fields
+
     }
 
     public function render()
@@ -347,7 +389,100 @@ class LarafuseBuilderForm extends Component  implements HasForms
         return $arr;
     }
 
-    public function createFiles() {}
+    private function handleModelMigration()
+    {
+        // Criar model c/ migration
+        $command = "make:model {$this->data['title']} -m";
+        Artisan::call($command);
+
+        // Caminho do arquivo da Model e da Migration
+        $modelPath = app_path("Models/{$this->data['title']}.php");
+        $migrationPath = database_path('migrations/' . now()->format('Y_m_d_His') . '_create_' . strtolower($this->data['title']) . 's_table.php');
+
+        // Adicionar SoftDeletes na Model, se aplicável
+        if ($this->data['hasSoftdeletes']) {
+            $this->addSoftDeletesToModel($modelPath);
+            $this->addSoftDeletesToMigration($migrationPath);
+        }
+
+        // Tratar estrutura da model
+        // Tratar estrutura da migration
+        // Tratar relacionamentos
+    }
+
+    private function addSoftDeletesToModel($modelPath)
+    {
+        // Lê o conteúdo da model
+        $modelContent = file_get_contents($modelPath);
+
+        // Verifica se o trait SoftDeletes já está presente
+        if (!str_contains($modelContent, 'SoftDeletes')) {
+            // Divide o conteúdo da model em linhas
+            $lines = explode(PHP_EOL, $modelContent);
+
+
+            // Procura o local após o namespace para adicionar o import do SoftDeletes
+            foreach ($lines as $index => $line) {
+                // Verifica a linha que contém a declaração de namespace
+                if (str_contains($line, 'namespace')) {
+                    // Adiciona o import logo após o namespace
+                    array_splice($lines, $index + 1, 0, "use Illuminate\\Database\\Eloquent\\SoftDeletes;");
+                    break;
+                }
+            }
+
+            // Procura a linha onde HasFactory está e adiciona o SoftDeletes
+            foreach ($lines as &$line) {
+                if (str_contains($line, "use HasFactory;")) {
+                    $line = "\t use HasFactory, SoftDeletes;";
+                    break;
+                }
+            }
+
+            // Reescreve o arquivo da model
+            file_put_contents($modelPath, implode(PHP_EOL, $lines));
+        }
+    }
+
+    private function addSoftDeletesToMigration($migrationPath)
+    {
+        // Lê o conteúdo da migration
+        $migrationContent = file_get_contents($migrationPath);
+
+        // Verifica se a coluna softDeletes() já foi adicionada
+        if (!str_contains($migrationContent, 'softDeletes')) {
+            // Divide o conteúdo da migration em linhas
+            $lines = explode(PHP_EOL, $migrationContent);
+
+            // Procura onde está o timestamps() e adiciona softDeletes() logo após
+            foreach ($lines as &$line) {
+                if (str_contains($line, 'timestamps();')) {
+                    $line .= PHP_EOL . "            \$table->softDeletes();";
+                    break;
+                }
+            }
+
+            // Reescreve o arquivo da migration
+            file_put_contents($migrationPath, implode(PHP_EOL, $lines));
+        }
+    }
+
+    private function handleSeed()
+    {
+        // Criar seed
+        // Inserir seed no DatabaseSeeder
+    }
+
+    private function handlePolicy()
+    {
+        // Criar Policy
+    }
+
+    private function handleResource()
+    {
+        // Criar resource
+    }
+
 
     private function runMigration()
     {
