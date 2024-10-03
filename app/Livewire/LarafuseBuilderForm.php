@@ -66,7 +66,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
     ];
 
     public $modelBasePath = 'App\Models\\';
-    public $seedBasePath = 'Database\Seeders\\';
+    public $seedBasePath = '';
 
     public function mount()
     {
@@ -304,16 +304,10 @@ class LarafuseBuilderForm extends Component  implements HasForms
     {
 
         $this->handleModelMigration();
-        // $this->handleSeed();
-        // $this->handlePolicy();
-        // $this->handleResource();
+        $this->handleSeeder();
+        $this->handlePolicy();
         // $this->runMigration();
-
-
-        // Rodar migration
-
-
-        // Tratar os labels dos fields
+        // $this->handleResource();
 
     }
 
@@ -389,15 +383,71 @@ class LarafuseBuilderForm extends Component  implements HasForms
         return $arr;
     }
 
+    private function handlePolicy()
+    {
+        // Obter o nome da policy com base no modelo
+        $policyName = $this->data['title'] . 'Policy';
+
+        // Caminho para o arquivo da policy (normalmente armazenado em 'app/Policies')
+        $policyPath = app_path("Policies/{$policyName}.php");
+
+        // Verifica se o arquivo da policy existe
+        if (file_exists($policyPath)) {
+            // Lê o conteúdo da policy
+            $policyContent = file_get_contents($policyPath);
+
+            // Substitui todos os comentários // por return true;
+            $updatedContent = str_replace('//', 'return true;', $policyContent);
+
+            // Reescreve o arquivo da policy com as mudanças
+            file_put_contents($policyPath, $updatedContent);
+        } else {
+            // Exibe uma mensagem de erro se o arquivo não existir (caso necessário)
+            throw new \Exception("Policy file not found: {$policyPath}");
+        }
+    }
+
+    private function handleSeeder()
+    {
+        // Caminho do arquivo DatabaseSeeder
+        $seederPath = database_path('seeders/DatabaseSeeder.php');
+
+        // Lê o conteúdo do arquivo DatabaseSeeder
+        $seederContent = file_get_contents($seederPath);
+
+        // O código que queremos adicionar
+        $callSeederCode = "\$this->call({$this->data['seed']}::class);";
+
+        // Verifica se o código já existe (para evitar duplicação)
+        if (!str_contains($seederContent, $callSeederCode)) {
+            // Divide o conteúdo da classe em linhas
+            $lines = explode(PHP_EOL, $seederContent);
+
+            // Localiza o índice da última chave "}" no arquivo
+            $lastBraceIndex = array_key_last($lines);
+
+            // Adiciona o código antes da última chave "}"
+            array_splice($lines, $lastBraceIndex - 2, 0, "        {$callSeederCode}");
+
+            // Reescreve o arquivo DatabaseSeeder com a nova linha adicionada
+            file_put_contents($seederPath, implode(PHP_EOL, $lines));
+        }
+    }
+
     private function handleModelMigration()
     {
-        // Criar model c/ migration
-        $command = "make:model {$this->data['title']} -m";
+        // Criar model
+        $command = "make:model {$this->data['title']} --seed --policy --requests";
+        Artisan::call($command);
+
+        $migrationName = 'create_' . strtolower($this->data['title']) . 's_table';
+        $command = "make:migration {$migrationName}  --create {$this->data['table']}";
         Artisan::call($command);
 
         // Caminho do arquivo da Model e da Migration
         $modelPath = app_path("Models/{$this->data['title']}.php");
-        $migrationPath = database_path('migrations/' . now()->format('Y_m_d_His') . '_create_' . strtolower($this->data['title']) . 's_table.php');
+        $migrationPath = database_path('migrations/' . $this->getLastMigrationFile());
+
 
         // Adicionar SoftDeletes na Model, se aplicável
         if ($this->data['hasSoftdeletes']) {
@@ -413,6 +463,26 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
         // Tratar relacionamentos
         $this->handleRelationships($modelPath);
+    }
+
+    private function getLastMigrationFile()
+    {
+        // Caminho da pasta de migrations
+        $migrationsPath = database_path('migrations');
+
+        // Pega todos os arquivos da pasta de migrations
+        $files = scandir($migrationsPath);
+
+        // Filtra apenas arquivos que terminam com ".php" (ignora pastas ou arquivos sem extensão php)
+        $migrationFiles = array_filter($files, function ($file) {
+            return str_ends_with($file, '.php');
+        });
+
+        // Ordena os arquivos em ordem alfabética (naturalmente já são listados assim)
+        sort($migrationFiles);
+
+        // Retorna o último arquivo na ordem alfabética
+        return end($migrationFiles);
     }
 
     private function handleRelationships($modelPath)
@@ -648,16 +718,6 @@ class LarafuseBuilderForm extends Component  implements HasForms
         }
     }
 
-    private function handleSeed()
-    {
-        // Criar seed
-        // Inserir seed no DatabaseSeeder
-    }
-
-    private function handlePolicy()
-    {
-        // Criar Policy
-    }
 
     private function handleResource()
     {
