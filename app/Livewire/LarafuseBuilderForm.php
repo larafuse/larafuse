@@ -406,8 +406,104 @@ class LarafuseBuilderForm extends Component  implements HasForms
         }
 
         // Tratar estrutura da model
+        $this->addFillableToModel($modelPath);
+
         // Tratar estrutura da migration
+        $this->addColumnsToMigration($migrationPath);
+
         // Tratar relacionamentos
+    }
+
+    private function addColumnsToMigration($migrationPath)
+    {
+        // Lê o conteúdo da migration
+        $migrationContent = file_get_contents($migrationPath);
+
+        // Armazena as colunas a serem adicionadas
+        $columns = [];
+
+        // Itera sobre a estrutura da tabela para adicionar as colunas
+        foreach ($this->data['table_structure'] as $field) {
+            $column = $this->generateColumnDefinition($field);
+            $columns[] = "            \$table->$column;";
+        }
+
+        // Converte as colunas para uma string
+        $columnsString = implode(PHP_EOL, $columns) . PHP_EOL;
+
+        // Divide o conteúdo da migration em linhas
+        $lines = explode(PHP_EOL, $migrationContent);
+
+        // Localiza a linha com $table->id(); e insere as novas colunas logo após
+        foreach ($lines as $index => $line) {
+            if (str_contains($line, '$table->id();')) {
+                // Insere as colunas logo após $table->id();
+                array_splice($lines, $index + 1, 0, $columnsString);
+                break;
+            }
+        }
+
+        // Reescreve o arquivo da migration com as colunas
+        file_put_contents($migrationPath, implode(PHP_EOL, $lines));
+    }
+
+    private function generateColumnDefinition($field)
+    {
+        $type = $field['type'];
+        $name = $field['name'];
+        $nullable = $field['nullable'] ? '->nullable()' : '';
+        $default = $field['default'] !== null ? "->default('{$field['default']}')" : '';
+
+        // Geração de colunas com base no tipo
+        switch ($type) {
+            case 'string':
+                return "string('{$name}'){$nullable}{$default}";
+
+            case 'integer':
+            case 'int':
+                return "integer('{$name}'){$nullable}{$default}";
+
+            case 'boolean':
+            case 'bool':
+                return "boolean('{$name}'){$nullable}{$default}";
+
+            case 'fk': // Foreign key
+                return "foreignId('{$name}'){$nullable}->constrained('{$field['table_relationship']}')";
+
+
+            default:
+                return "{$type}('{$name}'){$nullable}{$default}";
+        }
+    }
+
+    private function addFillableToModel($modelPath)
+    {
+        // Lê o conteúdo da model
+        $modelContent = file_get_contents($modelPath);
+
+        // Verifica se a propriedade fillable já existe na model
+        if (!str_contains($modelContent, '$fillable')) {
+            // Extrai os campos da estrutura da tabela
+            $fillableFields = [];
+            foreach ($this->data['table_structure'] as $field) {
+                $fillableFields[] = "'{$field['name']}'";
+            }
+
+            // Cria a string do fillable
+            $fillableString = PHP_EOL . "    protected \$fillable = [" . implode(', ', $fillableFields) . "];" . PHP_EOL . PHP_EOL;
+
+            // Divide o conteúdo da model em linhas
+            $lines = explode(PHP_EOL, $modelContent);
+
+            // Localiza o índice do último fechamento de chave "}" no arquivo
+            $lastBraceIndex = array_key_last($lines);
+
+            // Adiciona o $fillable uma linha antes do último "}"
+            array_splice($lines, $lastBraceIndex - 1, 0, $fillableString);
+
+            // Reescreve o arquivo da model
+            file_put_contents($modelPath, implode(PHP_EOL, $lines));
+        }
     }
 
     private function addSoftDeletesToModel($modelPath)
