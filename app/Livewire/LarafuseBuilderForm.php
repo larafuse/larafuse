@@ -148,7 +148,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
                             ->label('')
                             ->schema([
                                 Forms\Components\TextInput::make('name')
-                                    ->label('Nome')
+                                    ->label('Nome do Campo')
                                     ->required()
                                     ->reactive()
                                     ->live(onBlur: true)
@@ -157,7 +157,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                     }),
 
                                 Forms\Components\TextInput::make('label')
-                                    ->label('Nome do Campo (Rótulo)')
+                                    ->label('Rótulo do Campo')
                                     ->required(),
 
                                 Forms\Components\Select::make('type')
@@ -300,17 +300,6 @@ class LarafuseBuilderForm extends Component  implements HasForms
             ->statePath('data');
     }
 
-    public function create()
-    {
-
-        $this->handleModelMigration();
-        $this->handleSeeder();
-        $this->handlePolicy();
-        // $this->runMigration();
-        // $this->handleResource();
-
-    }
-
     public function render()
     {
         return view('livewire.larafuse-builder-form');
@@ -382,6 +371,20 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
         return $arr;
     }
+
+    public function create()
+    {
+
+        $this->handleModelMigration();
+        $this->handleSeeder();
+        $this->handlePolicy();
+        $this->handleResource();
+        // $this->runMigration();
+
+    }
+
+
+
 
     private function handlePolicy()
     {
@@ -568,7 +571,6 @@ class LarafuseBuilderForm extends Component  implements HasForms
         }
     }
 
-
     private function addColumnsToMigration($migrationPath)
     {
         // Lê o conteúdo da migration
@@ -718,12 +720,157 @@ class LarafuseBuilderForm extends Component  implements HasForms
         }
     }
 
-
     private function handleResource()
     {
-        // Criar resource
+        $command = [
+            'name' => $this->data['resource'],
+            '--generate' => true,
+            '--force' => true,
+            '--no-interaction' => true,
+        ];
+
+        if ($this->data['simple_resource'] == true) {
+            $command['--simple'] = true;
+        }
+
+        Artisan::call('make:filament-resource', $command);
+
+        $formSchema = $this->generateFormSchema();
+        $this->insertFormSchema($formSchema);
     }
 
+    private function insertFormSchema($formSchema)
+    {
+        $resourceFile = app_path("Filament/Resources/{$this->data['resource']}.php");
+
+        if (file_exists($resourceFile)) {
+            $content = file_get_contents($resourceFile);
+            $formFunction = <<<EOD
+                public static function form(Form \$form): Form
+                    {
+                        return \$form
+                            ->schema([
+                                $formSchema
+                            ]);
+                    }
+                EOD;
+
+            $content = preg_replace('/public static function form.*?{.*?}/s', $formFunction, $content);
+            file_put_contents($resourceFile, $content);
+        } else {
+            dd();
+        }
+    }
+
+    private function generateFormSchema()
+    {
+        $fields = [];
+
+        // Primeiro, vamos lidar com a table_structure
+        foreach ($this->data['table_structure'] as $column) {
+            $name = $column['name'];
+            $type = $column['type'];
+
+            // Ignorar campos do tipo 'fk', já que eles serão tratados pelos relacionamentos
+            if ($type === 'fk') {
+                continue;
+            }
+
+            $required = !$column['nullable'] ? '->required()' : '';
+
+            // Mapeamento do tipo de coluna para o componente do Filament
+            switch ($type) {
+                case 'char':
+                case 'string':
+                    $component = "Forms\Components\TextInput::make('$name')$required";
+                    break;
+
+                case 'text':
+                case 'mediumText':
+                case 'longText':
+                    $component = "Forms\Components\RichEditor::make('$name')$required";
+                    break;
+
+                case 'date':
+                    $component = "Forms\Components\DatePicker::make('$name')$required";
+                    break;
+
+                case 'time':
+                    $component = "Forms\Components\TimePicker::make('$name')$required";
+                    break;
+
+                case 'dateTime':
+                case 'timestamp':
+                    $component = "Forms\Components\DateTimePicker::make('$name')$required";
+                    break;
+
+                case 'enum':
+                    $component = "Forms\Components\Select::make('$name')$required";
+                    break;
+
+                default:
+                    $component = "Forms\Components\TextInput::make('$name')$required";
+                    break;
+            }
+
+            $fields[] = $component;
+        }
+
+        // Agora, lidamos com os relacionamentos
+        foreach ($this->data['relationships'] as $relationship) {
+            $relationshipType = $relationship['type'];
+            $relationshipName = $relationship['name'];
+            $relationshipColumn = $relationship['column'];
+
+            // Verificar se o campo de relacionamento é obrigatório (não nullable)
+            $isRequired = $this->isColumnRequired($relationshipColumn) ? '->required()' : '';
+
+            // Se for belongsTo ou hasOne, carregar um Select simples
+            if ($relationshipType === 'belongsTo' || $relationshipType === 'hasOne') {
+                $fields[] = "                Forms\Components\Select::make('$relationshipColumn')
+                            ->searchable()
+                            ->preload()
+                            ->native(false)
+                            ->relationship('$relationshipName', 'id')
+                            $isRequired";
+            }
+
+            // Se for hasMany, carregar um Select multiple
+            if ($relationshipType === 'hasMany') {
+                $fields[] = "                Forms\Components\Select::make('$relationshipColumn')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->native(false)
+                            ->relationship('$relationshipName', 'id')
+                            $isRequired";
+            }
+        }
+
+        // Retorna os campos em um formato apropriado para ser usado no formulário
+        return implode(",\n", $fields);
+    }
+
+    private function isColumnRequired($columnName)
+    {
+        // Percorre a estrutura da tabela para verificar se a coluna é nullable
+        foreach ($this->data['table_structure'] as $column) {
+            if ($column['name'] === $columnName) {
+                return !$column['nullable'];
+            }
+        }
+        return false;
+    }
+
+    private function generateTableSchema()
+    {
+        $columns = [];
+        foreach ($this->data['Table'] as $column) {
+            $columns[] = "Tables\Columns\TextColumn::make('{$column['name']}')->sortable()->searchable()";
+        }
+
+        return implode(",\n", $columns);
+    }
 
     private function runMigration()
     {
