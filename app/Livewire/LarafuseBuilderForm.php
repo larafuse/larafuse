@@ -104,20 +104,27 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
                 Forms\Components\Section::make('Arquivos')
                     ->schema([
-                        Forms\Components\TextInput::make('model')
-                            ->label('Model')
-                            ->required(),
-                        Forms\Components\TextInput::make('table')
-                            ->label('Tabela')
-                            ->required(),
+                        Forms\Components\Grid::make([
+                            'default' => 1,
+                            'sm' => 2,
+                        ])
+                            ->schema([
+                                Forms\Components\TextInput::make('model')
+                                    ->label('Model')
+                                    ->required(),
+                                Forms\Components\TextInput::make('table')
+                                    ->label('Tabela')
+                                    ->required(),
 
-                        Forms\Components\TextInput::make('seed')
-                            ->label('Seed')
-                            ->required(),
+                                Forms\Components\TextInput::make('seed')
+                                    ->label('Seed')
+                                    ->required(),
 
-                        Forms\Components\TextInput::make('resource')
-                            ->label('Resource')
-                            ->required(),
+                                Forms\Components\TextInput::make('resource')
+                                    ->label('Resource')
+                                    ->required(),
+                            ]),
+
 
                         Forms\Components\Grid::make([
                             'default' => 1,
@@ -167,31 +174,31 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                             'decimal' => 'Decimal',
                                             'double' => 'Double',
                                             'float' => 'Float',
-                                            'integer' => 'Inteiro',
-                                            'mediumInteger' => 'Inteiro Médio',
-                                            'smallInteger' => 'Inteiro Pequeno',
-                                            'tinyInteger' => 'Inteiro Minúsculo',
+                                            'integer' => 'Inteiro (integer)',
+                                            'mediumInteger' => 'Inteiro Médio (medium integer)',
+                                            'smallInteger' => 'Inteiro Pequeno (small integer)',
+                                            'tinyInteger' => 'Inteiro Minúsculo (tiny integer)',
                                         ],
                                         'Texto' => [
-                                            'char' => 'Caractere',
-                                            'string' => 'Texto Curto',
-                                            'text' => 'Texto',
-                                            'mediumText' => 'Texto Médio',
-                                            'longText' => 'Texto Longo',
-                                            'enum' => 'Enumeração',
+                                            'char' => 'Caractere (char)',
+                                            'string' => 'Texto Curto (string)',
+                                            'text' => 'Texto (text)',
+                                            'mediumText' => 'Texto Médio (medium text)',
+                                            'longText' => 'Texto Longo (long text)',
+                                            'enum' => 'Enumeração (enum)',
                                         ],
                                         'Datas/Tempos' => [
-                                            'date' => 'Data',
-                                            'dateTime' => 'Data e Hora',
-                                            'time' => 'Hora',
+                                            'date' => 'Data (date)',
+                                            'dateTime' => 'Data e Hora (date time)',
+                                            'time' => 'Hora (time)',
                                             'timestamp' => 'Timestamp',
                                         ],
                                         'Outros' => [
-                                            'binary' => 'Binário',
-                                            'boolean' => 'Booleano',
+                                            'binary' => 'Binário (binary)',
+                                            'boolean' => 'Booleano (bool)',
                                             'json' => 'JSON',
                                             'uuid' => 'UUID',
-                                            'fk' => 'Relacionamento',
+                                            'fk' => 'Relacionamento (fk/foreign key)',
                                         ],
                                     ])
                                     ->native(false)
@@ -259,8 +266,12 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                     ->native(false)
                                     ->searchable(),
 
-                                Forms\Components\TextInput::make('column')
+                                Forms\Components\Select::make('column')
                                     ->label('Coluna na Tabela')
+                                    ->options(fn() => $this->getForeignKeyColumns())
+                                    ->reactive()
+                                    ->native(false)
+                                    ->searchable()
                                     ->required(),
                             ])
                             ->columns(3)
@@ -303,6 +314,22 @@ class LarafuseBuilderForm extends Component  implements HasForms
     {
         return view('livewire.larafuse-builder-form');
     }
+
+    private function getForeignKeyColumns()
+    {
+        $fkColumns = [];
+
+        // Percorre a estrutura da tabela e busca as colunas do tipo 'fk'
+        foreach ($this->data['table_structure'] as $column) {
+            if ($column['type'] === 'fk') {
+                // Usa o nome da coluna como chave e valor
+                $fkColumns[$column['name']] = $column['name'];
+            }
+        }
+
+        return $fkColumns;
+    }
+
 
     private function getAllTables(): array
     {
