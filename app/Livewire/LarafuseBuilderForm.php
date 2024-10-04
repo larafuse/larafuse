@@ -357,6 +357,8 @@ class LarafuseBuilderForm extends Component  implements HasForms
                 ->title('Houve um erro ao criar o módulo')
                 ->danger()
                 ->send();
+
+            dd($th->getMessage());
         }
     }
 
@@ -507,10 +509,11 @@ class LarafuseBuilderForm extends Component  implements HasForms
     {
         // Remove a extensão .php e obtém apenas o nome da classe
         $reverseName = pathinfo($relatedModelPath, PATHINFO_FILENAME);
+        $relationshipName = class_basename($this->data['model']);
 
         $reverseRelationship = [
             'type' => $this->getReverseRelationshipType($relationship['type']),
-            'name' => lcfirst($reverseName), // Converte a primeira letra para minúscula
+            'name' => lcfirst($relationshipName) . 's',
             'model' => "App\\Models\\{$reverseName}",
             'column' => $relationship['column']
         ];
