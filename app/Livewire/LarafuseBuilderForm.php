@@ -737,6 +737,10 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
         $formSchema = $this->generateFormSchema();
         $this->insertFormSchema($formSchema);
+
+
+        $tableSchema = $this->generateTableSchema();
+        $this->insertTableSchema($tableSchema);
     }
 
     private function insertFormSchema($formSchema)
@@ -757,8 +761,6 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
             $content = preg_replace('/public static function form.*?{.*?}/s', $formFunction, $content);
             file_put_contents($resourceFile, $content);
-        } else {
-            dd();
         }
     }
 
@@ -862,11 +864,44 @@ class LarafuseBuilderForm extends Component  implements HasForms
         return false;
     }
 
+    private function insertTableSchema($tableSchema)
+    {
+        $resourceFile = app_path("Filament/Resources/{$this->data['resource']}.php");
+
+        if (file_exists($resourceFile)) {
+            $content = file_get_contents($resourceFile);
+            $tableFunction = <<<EOD
+                public static function table(Table \$table): Table
+                    {
+                        return \$table
+                            ->columns([
+                $tableSchema
+                            ])
+                            ->filters([
+                                //
+                            ])
+                            ->actions([
+                                Tables\Actions\ViewAction::make(),
+                                Tables\Actions\EditAction::make(),
+                            ])
+                            ->bulkActions([
+                                Tables\Actions\BulkActionGroup::make([
+                                    Tables\Actions\DeleteBulkAction::make(),
+                                ]),
+                            ]);
+                    }
+                EOD;
+
+            $content = preg_replace('/public static function table.*?{.*?}/s', $tableFunction, $content);
+            file_put_contents($resourceFile, $content);
+        }
+    }
+
     private function generateTableSchema()
     {
         $columns = [];
-        foreach ($this->data['Table'] as $column) {
-            $columns[] = "Tables\Columns\TextColumn::make('{$column['name']}')->sortable()->searchable()";
+        foreach ($this->data['table_structure'] as $column) {
+            $columns[] = "                                Tables\Columns\TextColumn::make('{$column['name']}')->label('{$column['label']}')->sortable()->searchable()";
         }
 
         return implode(",\n", $columns);
