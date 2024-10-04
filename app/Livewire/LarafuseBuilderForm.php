@@ -76,6 +76,11 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
                 Forms\Components\Section::make('Configurações do Resource')
                     ->schema([
+                        // \Guava\FilamentIconPicker\Forms\IconPicker::make('resource_options_icon')
+                        //     ->label('Icone')
+                        //     ->sets(['heroicons'])
+                        //     ->preload(),
+
                         Forms\Components\Grid::make([
                             'default' => 1,
                             'sm' => 2,
