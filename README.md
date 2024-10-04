@@ -1,66 +1,123 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Larafuse Builder Form - Projeto README
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+### Introdução
 
-## About Laravel
+**Larafuse Builder Form** é uma estrutura Laravel que possui algumas configurações Filament já implementadas com o objetivo de acelerar o desenvolvimento de sistemas administrativos, utilizando FilamentPHP de forma principal em sua stack. Com ele você pode automatizar a criação de módulos no Laravel. Este permite que os desenvolvedores criem modelos, migrações, políticas, recursos e seeders de maneira simplificada, com base na estrutura de dados fornecida através de um formulário dinâmico.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O projeto é ideal para acelerar o desenvolvimento de sistemas com **CRUD** (Create, Read, Update, Delete), fornecendo uma interface intuitiva para a definição de tabelas e relacionamentos, além de gerar automaticamente as classes necessárias para interagir com o banco de dados.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Funcionalidades
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Criação Automática de Modelos**: O Larafuse Builder gera automaticamente os modelos Laravel com base no nome e estrutura da tabela fornecida.
+2. **Criação de Migrações**: Gera migrações de banco de dados associadas ao modelo, com suporte para tipos de colunas comuns, como `string`, `text`, `boolean`, e relacionamentos `fk` (chave estrangeira).
+3. **Geração de Seeders**: O seeder é gerado automaticamente e vinculado ao `DatabaseSeeder`, permitindo a fácil população do banco de dados com dados de exemplo.
+4. **Gerenciamento de Relacionamentos**: O componente permite a definição de relacionamentos (`belongsTo`, `hasMany`, `hasOne`, etc.), além de gerar métodos de relacionamento nas models e configurar os relacionamentos reversos.
+5. **Criação de Recursos do Filament**: Gera classes de recursos do Filament com esquemas de formulário e tabela automáticos, permitindo gerenciar as entidades via painel administrativo.
+6. **Geração de Políticas**: Cria e edita automaticamente políticas de autorização para os modelos, aplicando permissões básicas.
+7. **Suporte a SoftDeletes e Timestamps**: Permite ativar soft deletes e timestamps, gerando automaticamente as colunas e métodos relacionados nas models e migrações.
+8. **Execução de Migrações**: Além de criar a migração, o sistema pode rodar automaticamente as migrações no banco de dados.
 
-## Learning Laravel
+### Como Funciona
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#### 1. **Formulário de Configuração**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+O componente utiliza um formulário gerado dinamicamente com base no **Filament**, onde o usuário define os detalhes do novo módulo, incluindo:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Título do Módulo**: Nome singular do módulo (por exemplo, "Produto").
+- **Model, Tabela, Seed, Resource**: Campos para definir o modelo, tabela de banco de dados, seeder e recurso associados ao módulo.
+- **Estrutura da Tabela**: Defina as colunas e seus tipos (texto, números, datas, etc.), além de configurar se os campos são obrigatórios, se permitem nulos e seus valores padrão.
+- **Relacionamentos**: Configure relacionamentos entre as entidades, como `hasMany`, `belongsTo`, `hasOne`, e mais.
 
-## Laravel Sponsors
+#### 2. **Criação de Módulo**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Após preencher o formulário, ao submeter, o **Larafuse Builder** realiza as seguintes ações:
 
-### Premium Partners
+- **Gera Model**: Um modelo é gerado com base nas configurações fornecidas, com a definição de `$fillable`, `$softDeletes` e timestamps.
+- **Gera Migração**: A migração correspondente é gerada automaticamente e pode ser executada após a criação.
+- **Cria Seeder**: Um seeder é gerado e inserido no `DatabaseSeeder`.
+- **Cria Relacionamentos**: Métodos de relacionamento são gerados automaticamente no modelo.
+- **Cria Políticas**: Políticas de autorização básicas são geradas.
+- **Cria Recursos do Filament**: Um recurso do Filament é gerado para interagir com os dados do modelo diretamente no painel administrativo.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Como Usar
 
-## Contributing
+#### Requisitos
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Laravel 8.x ou superior.
+- Livewire.
+- Filament (para o gerenciamento do painel administrativo).
 
-## Code of Conduct
+#### Passo a Passo
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Configurar Estrutura**: Defina a estrutura da tabela e as opções de relacionamento através do formulário.
+2. **Submeter Formulário**: Submeta o formulário e o sistema automaticamente irá gerar o código correspondente.
+3. **Gerenciamento via Painel Filament**: Acesse o painel Filament para gerenciar os dados utilizando os recursos gerados.
 
-## Security Vulnerabilities
+### Campos e Seções
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### Seções do Formulário
 
-## License
+1. **Nome do Módulo**: Define o nome do módulo em singular, como "Produto" ou "Usuário".
+2. **Configurações do Resource**: Define como o módulo aparecerá na navegação do painel Filament, incluindo nomes no plural, singular, grupo de navegação e opções de simplificação.
+3. **Estrutura de Arquivos**: Define a model, tabela de banco de dados, seeder e resource.
+4. **Estrutura da Tabela**: Configuração detalhada de colunas, tipos de dados e suas propriedades.
+5. **Relacionamentos**: Define os tipos de relacionamento (hasMany, belongsTo, etc.) entre os modelos.
+6. **Opções**: Ativar/desativar Soft Deletes e Timestamps.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### Campos Suportados
+
+Os tipos de coluna suportados incluem:
+- **Numéricos**: `bigInteger`, `decimal`, `float`, `integer`, etc.
+- **Texto**: `char`, `string`, `text`, `mediumText`, `longText`, `enum`.
+- **Datas e Tempos**: `date`, `dateTime`, `time`, `timestamp`.
+- **Outros**: `boolean`, `binary`, `json`, `uuid`, e `fk` (chave estrangeira).
+
+#### Relacionamentos Suportados
+
+O sistema suporta os seguintes tipos de relacionamento:
+
+- **belongsTo**
+- **hasMany**
+- **hasOne**
+- **belongsToMany**
+
+### Exemplo de Uso
+
+Aqui está um exemplo básico de como seria preenchido o formulário para criar um módulo "Produto":
+
+- Título: `Produto`
+- Model: `App\Models\Produto`
+- Tabela: `produtos`
+- Seed: `ProdutoSeeder`
+- Resource: `ProdutoResource`
+
+##### Estrutura da Tabela
+
+| Nome  | Tipo       | Rótulo         | Nullable | Default  |
+|-------|------------|----------------|----------|----------|
+| name  | string     | Nome do Produto| false    | null     |
+| price | decimal    | Preço          | false    | 0.00     |
+| user_id | fk       | Usuário Criador| true     | null     |
+
+##### Relacionamentos
+
+| Tipo      | Nome       | Model                | Coluna        |
+|-----------|------------|----------------------|---------------|
+| belongsTo | user       | App\Models\User       | user_id       |
+| hasMany   | orders     | App\Models\Order      | produto_id    |
+
+### Execução
+
+Para criar o módulo, preencha o formulário e clique em "Criar". O sistema gerará os arquivos automaticamente e você poderá visualizar o novo módulo no painel administrativo do Filament.
+
+### Conclusão
+
+O **Larafuse Builder** é uma ferramenta poderosa para acelerar o desenvolvimento de módulos no Laravel. Ele gera código automaticamente, economizando tempo na criação manual de arquivos, migrações e relacionamentos, permitindo que você se concentre em outros aspectos do desenvolvimento do projeto.
+
+### Contribuições
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests para melhorar o Larafuse Builder.
+
+### Licença
+
+Este projeto é distribuído sob a licença MIT.
