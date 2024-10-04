@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Filament\Notifications\Notification;
 
 
 class LarafuseBuilderForm extends Component  implements HasForms
@@ -28,38 +29,8 @@ class LarafuseBuilderForm extends Component  implements HasForms
         'create_migration' => true,
         'run_migration' => false,
         'create_policy' => true,
-        'table_structure' => [
-            [
-                "name" => "name",
-                "label" => "Nome",
-                "type" => "string",
-                "table_relationship" => null,
-                "nullable" => false,
-                "default" => null
-            ],
-            [
-                "name" => "user_id",
-                "label" => "Criador",
-                "type" => "fk",
-                "table_relationship" => "users",
-                "nullable" => true,
-                "default" => null
-            ]
-        ],
-        'relationships' => [
-            [
-                "type" => "belongsTo",
-                "name" => "user",
-                "model" => "App\Models\User",
-                "column" => "user_id"
-            ],
-            [
-                "type" => "hasMany",
-                "name" => "users",
-                "model" => "App\Models\User",
-                "column" => "user_id"
-            ]
-        ],
+        'table_structure' => [],
+        'relationships' => [],
 
         'hasSoftdeletes' => true,
         'hasTimestamps' => true,
@@ -72,13 +43,6 @@ class LarafuseBuilderForm extends Component  implements HasForms
     {
         $this->data['model'] = $this->modelBasePath;
         $this->data['seed'] = $this->seedBasePath;
-
-
-        $this->data['title'] = 'Teste';
-        $this->data['model'] .= 'Teste';
-        $this->data['table'] .= 'testes';
-        $this->data['seed'] .= 'TesteSeeder';
-        $this->data['resource'] = 'TesteResource';
     }
 
     public function form(Forms\Form $form): Forms\Form
@@ -375,12 +339,25 @@ class LarafuseBuilderForm extends Component  implements HasForms
     public function create()
     {
 
-        $this->handleModelMigration();
-        $this->handleSeeder();
-        $this->handlePolicy();
-        $this->handleResource();
-        // $this->runMigration();
+        try {
+            $this->handleModelMigration();
+            $this->handleSeeder();
+            $this->handlePolicy();
+            $this->handleResource();
+            // $this->runMigration();
 
+            Notification::make()
+                ->title('Módulo criado com sucesso')
+                ->success()
+                ->send();
+
+            $this->redirect('/admin/larafuse-builder');
+        } catch (\Throwable $th) {
+            Notification::make()
+                ->title('Houve um erro ao criar o módulo')
+                ->danger()
+                ->send();
+        }
     }
 
 
