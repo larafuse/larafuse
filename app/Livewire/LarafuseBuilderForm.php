@@ -25,6 +25,10 @@ class LarafuseBuilderForm extends Component  implements HasForms
         'table' => '',
         'seed' => '',
         'resource' => '',
+        'resource_options_navigation_label' => '',
+        'resource_options_plural_label' => '',
+        'resource_options_model_label' => '',
+        'resource_options_navigation_group' => null,
         'simple_resource' => true,
         'create_migration' => true,
         'run_migration' => false,
@@ -56,6 +60,11 @@ class LarafuseBuilderForm extends Component  implements HasForms
                     ->afterStateUpdated(function (Set $set, $state) {
                         $set('model', $this->modelBasePath . $state);
 
+                        $set('resource_options_navigation_label', $state . 's');
+                        $set('resource_options_plural_label', $state . 's');
+
+                        $set('resource_options_model_label', $state);
+
                         $tableName = Str::snake(Str::plural($state));
                         $set('table', $tableName);
 
@@ -64,6 +73,34 @@ class LarafuseBuilderForm extends Component  implements HasForms
                         $set('resource', $state . 'Resource');
                     })
                     ->required(),
+
+                Forms\Components\Section::make('Configurações do Resource')
+                    ->schema([
+                        Forms\Components\Grid::make([
+                            'default' => 1,
+                            'sm' => 2,
+                        ])
+                            ->schema([
+                                Forms\Components\TextInput::make('resource_options_navigation_label')
+                                    ->label('Nome na Navegação')
+                                    ->required(),
+
+                                Forms\Components\TextInput::make('resource_options_navigation_group')
+                                    ->label('Grupo de Itens na Navegação'),
+
+                                Forms\Components\TextInput::make('resource_options_plural_label')
+                                    ->label('Nome no Plural')
+                                    ->required(),
+
+                                Forms\Components\TextInput::make('resource_options_model_label')
+                                    ->label('Nome no Singular')
+                                    ->required(),
+
+                                Forms\Components\Checkbox::make('simple_resource')
+                                    ->label('Simple Resource')
+                                    ->inline(),
+                            ])
+                    ]),
 
                 Forms\Components\Section::make('Arquivos')
                     ->schema([
@@ -91,9 +128,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
                             '2xl' => 8,
                         ])
                             ->schema([
-                                Forms\Components\Checkbox::make('simple_resource')
-                                    ->label('Simple Resource')
-                                    ->inline(),
+
                                 Forms\Components\Checkbox::make('create_migration')
                                     ->label('Criar migration')
                                     ->inline(),
@@ -721,6 +756,57 @@ class LarafuseBuilderForm extends Component  implements HasForms
 
         $tableSchema = $this->generateTableSchema();
         $this->insertTableSchema($tableSchema);
+
+        $this->handleResourceSettings();
+    }
+
+    private function handleResourceSettings()
+    {
+        $resourceFile = app_path("Filament/Resources/{$this->data['resource']}.php");
+        if (file_exists($resourceFile)) {
+            $content = file_get_contents($resourceFile);
+
+            // Divide o conteúdo do arquivo em linhas
+            $lines = explode(PHP_EOL, $content);
+
+            foreach ($lines as $index => $line) {
+                // Verifica a linha que contém a declaração de protected static ?string $model
+                if (str_contains($line, 'protected static ?string $model')) {
+
+                    $navGroup = $this->data['resource_options_navigation_group'] != null ? "'{$this->data['resource_options_navigation_group']}'" : "''";
+
+                    $contentToAdd = <<<EOD
+
+                        public static function getNavigationLabel(): string
+                        {
+                            return "{$this->data['resource_options_navigation_label']}";
+                        }
+
+                        public static function getPluralLabel(): string
+                        {
+                            return "{$this->data['resource_options_plural_label']}s";
+                        }
+
+                        public static function getModelLabel(): string
+                        {
+                            return "{$this->data['resource_options_model_label']}";
+                        }
+
+                        public static function getNavigationGroup(): string | null
+                        {
+                            return {$navGroup};
+                        }
+                    
+                    EOD;
+
+                    // Adiciona o import logo após a definição de model
+                    array_splice($lines, $index + 1, 0, $contentToAdd);
+                    break;
+                }
+            }
+
+            file_put_contents($resourceFile, implode(PHP_EOL, $lines));
+        }
     }
 
     private function insertFormSchema($formSchema)
