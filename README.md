@@ -1,5 +1,14 @@
 ## Larafuse Builder Form - Projeto README
 
+### Mode de usar
+Para usar o Larafuse, basta no seu terminal criar um projeto do composer com:
+
+<pre>
+composer create-project larafuse/larafuse my-project
+</pre>
+
+Executando, o composer irá criar um projeto na pasta com toda a estrtura Laravel + FilamentPHP pronta para o uso.
+
 ### Introdução
 
 **Larafuse Builder Form** é uma estrutura Laravel que possui algumas configurações Filament já implementadas com o objetivo de acelerar o desenvolvimento de sistemas administrativos, utilizando FilamentPHP de forma principal em sua stack. Com ele você pode automatizar a criação de módulos no Laravel. Este permite que os desenvolvedores criem modelos, migrações, políticas, recursos e seeders de maneira simplificada, com base na estrutura de dados fornecida através de um formulário dinâmico.
