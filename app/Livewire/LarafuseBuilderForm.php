@@ -54,7 +54,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                    ->label('Nome do Módulo (No singular)')
+                    ->label(__('form.title'))
                     ->reactive()
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Set $set, $state) {
@@ -74,7 +74,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
                     })
                     ->required(),
 
-                Forms\Components\Section::make('Configurações do Resource')
+                Forms\Components\Section::make(__('form.resource_options.title'))
                     ->schema([
                         // \Guava\FilamentIconPicker\Forms\IconPicker::make('resource_options_icon')
                         //     ->label('Icone')
@@ -87,27 +87,27 @@ class LarafuseBuilderForm extends Component  implements HasForms
                         ])
                             ->schema([
                                 Forms\Components\TextInput::make('resource_options_navigation_label')
-                                    ->label('Nome na Navegação')
+                                    ->label(__('form.resource_options.navigation_label'))
                                     ->required(),
 
                                 Forms\Components\TextInput::make('resource_options_navigation_group')
-                                    ->label('Grupo de Itens na Navegação'),
+                                    ->label(__('form.resource_options.navigation_group_items')),
 
                                 Forms\Components\TextInput::make('resource_options_plural_label')
-                                    ->label('Nome no Plural')
+                                    ->label(__('form.resource_options.plural_label'))
                                     ->required(),
 
                                 Forms\Components\TextInput::make('resource_options_model_label')
-                                    ->label('Nome no Singular')
+                                    ->label(__('form.resource_options.model_label'))
                                     ->required(),
 
                                 Forms\Components\Checkbox::make('simple_resource')
-                                    ->label('Simple Resource')
+                                    ->label(__('form.resource_options.simple_resource'))
                                     ->inline(),
                             ])
                     ]),
 
-                Forms\Components\Section::make('Arquivos')
+                Forms\Components\Section::make(__('form.files.title'))
                     ->schema([
                         Forms\Components\Grid::make([
                             'default' => 1,
@@ -115,18 +115,18 @@ class LarafuseBuilderForm extends Component  implements HasForms
                         ])
                             ->schema([
                                 Forms\Components\TextInput::make('model')
-                                    ->label('Model')
+                                    ->label(__('form.files.model'))
                                     ->required(),
                                 Forms\Components\TextInput::make('table')
-                                    ->label('Tabela')
+                                    ->label(__('form.files.table'))
                                     ->required(),
 
                                 Forms\Components\TextInput::make('seed')
-                                    ->label('Seed')
+                                    ->label(__('form.files.seed'))
                                     ->required(),
 
                                 Forms\Components\TextInput::make('resource')
-                                    ->label('Resource')
+                                    ->label(__('form.files.resource'))
                                     ->required(),
                             ]),
 
@@ -142,24 +142,24 @@ class LarafuseBuilderForm extends Component  implements HasForms
                             ->schema([
 
                                 Forms\Components\Checkbox::make('create_migration')
-                                    ->label('Criar migration')
+                                    ->label(__('form.files.create_migration'))
                                     ->inline(),
                                 Forms\Components\Checkbox::make('run_migration')
-                                    ->label('Rodar migration')
+                                    ->label(__('form.files.run_migration'))
                                     ->inline(),
                                 Forms\Components\Checkbox::make('create_policy')
-                                    ->label('Criar Policy')
+                                    ->label(__('form.files.create_policy'))
                                     ->inline()
                             ]),
                     ]),
 
-                Forms\Components\Section::make('Estrutura de Tabela')
+                Forms\Components\Section::make(__('form.table.title'))
                     ->schema([
                         Forms\Components\Repeater::make('table_structure')
                             ->label('')
                             ->schema([
                                 Forms\Components\TextInput::make('name')
-                                    ->label('Nome do Campo')
+                                    ->label(__('form.table.column_name'))
                                     ->required()
                                     ->reactive()
                                     ->live(onBlur: true)
@@ -168,51 +168,51 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                     }),
 
                                 Forms\Components\TextInput::make('label')
-                                    ->label('Rótulo do Campo')
+                                    ->label(__('form.table.column_label'))
                                     ->required(),
 
                                 Forms\Components\Select::make('type')
-                                    ->label('Tipo de Coluna')
+                                    ->label(__('form.table.column_type.title'))
                                     ->options([
-                                        'Numéricos' => [
-                                            'bigInteger' => 'Big Integer',
-                                            'decimal' => 'Decimal',
-                                            'double' => 'Double',
-                                            'float' => 'Float',
-                                            'integer' => 'Inteiro (integer)',
-                                            'mediumInteger' => 'Inteiro Médio (medium integer)',
-                                            'smallInteger' => 'Inteiro Pequeno (small integer)',
-                                            'tinyInteger' => 'Inteiro Minúsculo (tiny integer)',
+                                        __('form.table.column_type.categories.numerics') => [
+                                            'bigInteger' => __('form.table.column_type.bigInteger'),
+                                            'decimal' => __('form.table.column_type.decimal'),
+                                            'double' => __('form.table.column_type.double'),
+                                            'float' => __('form.table.column_type.float'),
+                                            'integer' => __('form.table.column_type.integer'),
+                                            'mediumInteger' => __('form.table.column_type.mediumInteger'),
+                                            'smallInteger' => __('form.table.column_type.smallInteger'),
+                                            'tinyInteger' => __('form.table.column_type.tinyInteger'),
                                         ],
-                                        'Texto' => [
-                                            'char' => 'Caractere (char)',
-                                            'string' => 'Texto Curto (string)',
-                                            'text' => 'Texto (text)',
-                                            'mediumText' => 'Texto Médio (medium text)',
-                                            'longText' => 'Texto Longo (long text)',
-                                            'enum' => 'Enumeração (enum)',
+                                        __('form.table.column_type.categories.text') => [
+                                            'char' => __('form.table.column_type.char'),
+                                            'string' => __('form.table.column_type.string'),
+                                            'text' => __('form.table.column_type.text'),
+                                            'mediumText' => __('form.table.column_type.mediumText'),
+                                            'longText' => __('form.table.column_type.longText'),
+                                            'enum' => __('form.table.column_type.enum'),
                                         ],
-                                        'Datas/Tempos' => [
-                                            'date' => 'Data (date)',
-                                            'dateTime' => 'Data e Hora (date time)',
-                                            'time' => 'Hora (time)',
-                                            'timestamp' => 'Timestamp',
+                                        __('form.table.column_type.categories.dates_times') => [
+                                            'date' => __('form.table.column_type.date'),
+                                            'dateTime' => __('form.table.column_type.dateTime'),
+                                            'time' => __('form.table.column_type.time'),
+                                            'timestamp' => __('form.table.column_type.timestamp'),
                                         ],
-                                        'Outros' => [
-                                            'binary' => 'Binário (binary)',
-                                            'boolean' => 'Booleano (bool)',
-                                            'json' => 'JSON',
-                                            'uuid' => 'UUID',
-                                            'fk' => 'Relacionamento (fk/foreign key)',
+                                        __('form.table.column_type.categories.others') => [
+                                            'binary' => __('form.table.column_type.binary'),
+                                            'boolean' => __('form.table.column_type.boolean'),
+                                            'json' => __('form.table.column_type.json'),
+                                            'uuid' => __('form.table.column_type.uuid'),
+                                            'fk' => __('form.table.column_type.fk'),
                                         ],
-                                    ])
+                                    ])                                    
                                     ->native(false)
                                     ->searchable()
                                     ->live(),
 
 
                                 Forms\Components\Select::make('table_relationship')
-                                    ->label('Tabela de Relacionamento')
+                                    ->label(__('form.table.relationship_table'))
                                     ->options($this->getAllTables())
                                     ->native(false)
                                     ->searchable()
@@ -225,54 +225,51 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                     }),
 
                                 Forms\Components\Checkbox::make('nullable')
-                                    ->label('Nulo')
+                                    ->label(__('form.table.column_type.nullable'))
                                     ->inline(false),
 
                                 Forms\Components\TextInput::make('default')
-                                    ->label('Valor Padrão'),
+                                    ->label(__('form.table.default_value'))
 
 
                             ])
                             ->columns(3)
                             ->defaultItems(1)
-                            ->addActionLabel('Add coluna')
+                            ->addActionLabel(__('form.table.add_action_label'))
                             ->reorderableWithButtons(),
 
 
 
                     ]),
 
-                Forms\Components\Section::make('Relacionamentos')
+                Forms\Components\Section::make(__('form.relationships.title'))
                     ->schema([
                         Forms\Components\Repeater::make('relationships')
                             ->label('')
                             ->schema([
-
                                 Forms\Components\Select::make('type')
-                                    ->label('Tipo de Relacionamento')
+                                    ->label(__('form.relationships.type'))
                                     ->options([
-                                        'hasMany' => 'Has Many',
-                                        'hasOne' => 'Has One',
-                                        'belongsTo' => 'Belongs To',
-                                        'belongsToMany' => 'Belongs To Many',
+                                        'hasMany' => __('form.relationships.hasMany'),
+                                        'hasOne' => __('form.relationships.hasOne'),
+                                        'belongsTo' => __('form.relationships.belongsTo'),
+                                        'belongsToMany' => __('form.relationships.belongsToMany'),
                                     ])
                                     ->native(false)
                                     ->searchable(),
-
-
+                
                                 Forms\Components\TextInput::make('name')
-                                    ->label('Nome')
+                                    ->label(__('form.relationships.name'))
                                     ->required(),
-
-
+                
                                 Forms\Components\Select::make('model')
-                                    ->label('Model')
+                                    ->label(__('form.relationships.model'))
                                     ->options($this->getAllModels())
                                     ->native(false)
                                     ->searchable(),
-
+                
                                 Forms\Components\Select::make('column')
-                                    ->label('Coluna na Tabela')
+                                    ->label(__('form.relationships.column'))
                                     ->options(fn() => $this->getForeignKeyColumns())
                                     ->reactive()
                                     ->native(false)
@@ -281,12 +278,11 @@ class LarafuseBuilderForm extends Component  implements HasForms
                             ])
                             ->columns(3)
                             ->defaultItems(1)
-                            ->addActionLabel('Add relacionamento')
+                            ->addActionLabel(__('form.relationships.add_action_label'))
                             ->reorderableWithButtons(),
-                    ]),
+                    ]),                
 
-
-                Forms\Components\Section::make('Opções')
+                    Forms\Components\Section::make(__('form.options.title'))
                     ->schema([
                         Forms\Components\Grid::make([
                             'default' => 1,
@@ -298,18 +294,14 @@ class LarafuseBuilderForm extends Component  implements HasForms
                         ])
                             ->schema([
                                 Forms\Components\Checkbox::make('hasSoftdeletes')
-                                    ->label('Soft Deletes')
+                                    ->label(__('form.options.hasSoftdeletes'))
                                     ->inline(),
                                 Forms\Components\Checkbox::make('hasTimestamps')
-                                    ->label('Timestamps')
+                                    ->label(__('form.options.hasTimestamps'))
                                     ->inline(),
                             ]),
                     ])
-
-
-
-
-
+                
             ])
 
             ->statePath('data');
