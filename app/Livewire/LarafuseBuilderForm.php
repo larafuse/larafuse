@@ -225,7 +225,7 @@ class LarafuseBuilderForm extends Component  implements HasForms
                                     }),
 
                                 Forms\Components\Checkbox::make('nullable')
-                                    ->label(__('form.table.column_type.nullable'))
+                                    ->label(__('form.table.nullable'))
                                     ->inline(false),
 
                                 Forms\Components\TextInput::make('default')
